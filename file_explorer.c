@@ -514,8 +514,64 @@ printf("Invalid path\n");
 }
 
 
-void reload(){}
-void save(){}
+void reload(){
+	FILE *f= fopen("FileTree","r");
+	char d[10],p[64];
+	fscanf(f,"%s%s",d,p);
+	while(fscanf(f,"%s%s",d,p)!=EOF){
+		if(!strcmp(d,"D"))mkdir(p);
+			else creat(p);
+	}
+	if(f!=NULL)fclose(f);
+	}
+
+void pre_order(NODE *head,FILE *f){
+	if (head==NULL)return;
+	else{
+LIST *cur=(LIST *)malloc(sizeof(LIST));
+NODE *temp=(NODE *)malloc(sizeof(NODE));
+cur->next=NULL;
+		strcpy(cur->name,head->name);
+int x=0;
+temp=head;
+//if(head->child!=NULL)
+//printf("%s\n",head->child->name);
+while(strcmp(head->parent->name,head->name)){
+	
+LIST *new=(LIST *)malloc(sizeof(LIST));
+new->next=cur;
+strcpy(new->name,head->name);
+//cur->next=new;
+cur=new;
+
+head=head->parent;
+
+}
+fprintf(f,"%c      /",temp->type);
+while(cur->next!=NULL){
+if(strcmp(cur->name,"/"))
+fprintf(f,"%s",cur->name);
+cur=cur->next;
+if(cur->next!=NULL)
+fprintf(f,"/");
+}
+fprintf(f,"\n");
+
+head=temp;
+pre_order(head->child,f);
+if(head!=head->sibling)
+pre_order(head->sibling,f);
+}
+}
+
+
+void save(){
+FILE *f=fopen("FileTree","w+");
+
+	pre_order(root,f);
+	fclose(f);
+
+	}
 void menu(){
 printf("mkdir pathname :make a new directory for a given pathname\n"); 
 printf("rmdir pathname :remove the directory, if it is empty.\n"); 
