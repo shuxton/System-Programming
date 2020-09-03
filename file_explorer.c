@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define RED     "\x1b[31m"
+#define GREEN   "\x1b[32m"
+#define YELLOW  "\x1b[33m"
+#define BLUE    "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN    "\x1b[36m"
+#define RESET   "\x1b[0m"
 
 char *cmd[]={"mkdir","rmdir","ls","cd","pwd","creat","rm",
              "reload","save","menu","quit",NULL};
@@ -104,7 +111,7 @@ cwd=root;
 
 void mkdir(char *path){
 
-if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Please enter a valid directory name/n");
+if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf(RED"Please enter a valid directory name\n"RESET);
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 
@@ -137,7 +144,7 @@ head=head->child;
 continue;
 }
 else{
-printf("Invalid path\n");break;
+printf(RED"Please enter a valid path\n"RESET);break;
 }
 }
 if(count==length-1){
@@ -150,7 +157,7 @@ new->child=NULL;
 new->sibling=NULL;
 new->parent=head;
 head->child=new;
-printf("Directory  : %s\nStatus: Successfully created!\n",li->name);
+printf(GREEN"Directory  : %s\nStatus: Successfully created!\n"RESET,li->name);
 return;
 }
 head=head->child;
@@ -159,7 +166,7 @@ while(head->sibling!=NULL){
 	head=head->sibling;
 }
 	if(!strcmp(head->name,li->name)&&head->type=='D')x++;
-if(x>0)printf("Directory  : %s\nStatus: Failed\nError : Directory with that name already exists\n",li->name);
+if(x>0)printf(RED"Directory  : %s\nStatus: Failed\nError : Directory with that name already exists\n"RESET,li->name);
 else{
 		NODE *new=(NODE *) malloc(sizeof(NODE));
 		new->type='D';
@@ -168,7 +175,7 @@ new->child=NULL;
 new->sibling=NULL;
 new->parent=head->parent;
 head->sibling=new;
-printf("Directory  : %s\nStatus: Successfully created!\n",li->name);
+printf(GREEN"Directory  : %s\nStatus: Successfully created!\n"RESET,li->name);
 
 }
 
@@ -181,7 +188,7 @@ printf("Directory  : %s\nStatus: Successfully created!\n",li->name);
 
 
 void rmdir(char *path){
-if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Please enter a valid path/n");
+if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf(RED"Please enter a valid path\n"RESET);
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 NODE *prev=(NODE *) malloc(sizeof(NODE));
@@ -218,14 +225,14 @@ prev=head;
 continue;
 }
 else{
-	printf("Error: Directory is not empty or it doesn't exist\n");break;
+	printf(RED"Error: Directory is not empty or it doesn't exist\n"RESET);break;
 
 }
 }
 if(count==length-1){
 head=head->child;
 if(length==1)prev=head;
-if(head==NULL)printf("Error: Directory-%s is not empty or it doesn't exist\n",li->name);
+if(head==NULL)printf(RED"Error: Directory-%s is not empty or it doesn't exist\n"RESET,li->name);
 else{
 	par=head->parent;
 	while(head->name!=NULL){	
@@ -236,17 +243,17 @@ else {par->child=prev;prev->sibling=head->sibling;}
 }
 else if(!strcmp(prev->name,head->name))par->child=NULL;
 else prev->sibling=head->sibling;
- printf("Directory  : %s\nStatus: Successfully Deleted\n");return;
+ printf(GREEN"Directory  : %s\nStatus: Successfully Deleted\n"RESET);return;
 }	head=head->sibling;
 
-	}printf("Error: Directory-%s is not empty or it doesn't exist\n",li->name);
+	}printf(RED"Error: Directory-%s is not empty or it doesn't exist\n"RESET,li->name);
 	
 
 	}
 }
 
 else{
-	printf("Error: Directory is not empty or it doesn't exist\n");
+	printf(RED"Error: Directory is not empty or it doesn't exist\n"RESET);
 }
 }
 }
@@ -262,10 +269,12 @@ if ((strlen(path)==1 && path[0]=='/') || !strcmp(path,"/")){
 head=root;
 if(head->child!=NULL){
 head=head->child;
-printf("%s %c\n",head->name,head->type);
+	printf(YELLOW"TYPE|"BLUE"NAME\n"RESET);
+
+printf(YELLOW"%c   |"BLUE"%s\n"RESET,head->type,head->name);
 while(head->sibling!=NULL){
 head=head->sibling;
-printf("%s %c\n",head->name,head->type);
+printf(YELLOW"%c   |"BLUE"%s\n"RESET,head->type,head->name);
 }
 }
 }
@@ -273,10 +282,12 @@ else if(strlen(path)==0){
 	head=cwd;
 if(head->child!=NULL){
 head=head->child;
-printf("%s %c\n",head->name,head->type);
+	printf(YELLOW"TYPE|"BLUE"NAME\n"RESET);
+
+printf(YELLOW"%c   |"BLUE"%s\n"RESET,head->type,head->name);
 while(head->sibling!=NULL){
 head=head->sibling;
-printf("%s %c\n",head->name,head->type);
+printf(YELLOW"%c   |"BLUE"%s\n"RESET,head->type,head->name);
 }
 }
 }
@@ -291,7 +302,7 @@ head=root;
 else head=cwd;
 
 head=head->child;
-if(head==NULL){printf("Invalid path\n");return;}
+if(head==NULL){printf(RED"Invalid path\n"RESET);return;}
 
 while(token!=NULL){
 
@@ -304,10 +315,12 @@ if(token==NULL){
 if(head->child!=NULL)
 head=head->child;
 else {
-	printf("Invalid Path \n");return;
+	printf(RED"Invalid Path \n"RESET);return;
 }
 while(head!=NULL){
-printf("%s %c\n",head->name,head->type);
+	printf(YELLOW"TYPE|"BLUE"NAME\n"RESET);
+
+printf(YELLOW"%c   |"BLUE"%s\n"RESET,head->type,head->name);
 head=head->sibling;
 }
 return;
@@ -323,7 +336,7 @@ continue;
 }
 
 else {
-printf("Invalid path\n");break;
+printf(RED"Invalid path\n"RESET);break;
 } 
 
 }
@@ -338,7 +351,7 @@ printf("Invalid path\n");break;
 void cd(char *path){
 if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/')){
 cwd=root;
-printf("You are now in root directory\n");
+printf(GREEN"You are now in root directory\n"RESET);
 }
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
@@ -349,7 +362,7 @@ if(token!=NULL)strcpy(temp,token);
 if(path[0]=='/')
 head=root;
 else{ head=cwd;
-	if(head->child==NULL){printf("Invalid path\n");return;}
+	if(head->child==NULL){printf(RED"Invalid path\n"RESET);return;}
 	else head=head->child;
 }
 while(token!=NULL){
@@ -359,15 +372,15 @@ token=strtok(NULL,"/");
 if(token!=NULL)strcpy(temp,token);
 
  if(head==head->sibling && head->child!=NULL){head=head->child;}
-else if(head==head->sibling){ printf("Invalid path\n");break;}
+else if(head==head->sibling){ printf(RED"Invalid path\n"RESET);break;}
 
  if(token==NULL){
 	if(!strcmp(temp,head->name) && head->type=='D'){
 cwd=head;
- printf("Success\n");break;
+ printf(GREEN"Successfully changed directory\n"RESET);break;
 }
 else{
-	printf("Invalid path\n");break;
+	printf(RED"Invalid path\n"RESET);break;
 }
 }
 }
@@ -382,7 +395,7 @@ continue;
 }
 
 else {
-printf("Invalid path\n");break;
+printf(RED"Invalid path\n"RESET);break;
 } 
 
 }
@@ -408,13 +421,13 @@ cur=new;
 }
 while(cur->next!=NULL){
 
-printf("%s",cur->name);
+printf(BLUE"%s"RESET,cur->name);
 if(strcmp(cur->name,"/"))
-printf("/");
+printf(BLUE"/"RESET);
 cur=cur->next;
 }
 
-printf("%s\n",cur->name);
+printf(BLUE"%s\n"RESET,cur->name);
 }
 
 
@@ -422,7 +435,7 @@ printf("%s\n",cur->name);
 
 
 void creat(char *path){
-if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Please enter a valid file name\n");
+if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf(RED"Please enter a valid file name\n"RESET);
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 
@@ -455,7 +468,7 @@ head=head->child;
 continue;
 }
 else{
-printf("Invalid path\n");break;
+printf(RED"Invalid path\n"RESET);break;
 }
 }
 if(count==length-1){
@@ -469,7 +482,7 @@ new->sibling=NULL;
 new->parent=head;
 head->child=new;
 head=head->child;
-printf("File  : %s\nStatus: Successfully created!\n",li->name);
+printf(GREEN"File  : %s\nStatus: Successfully created!\n"RESET,li->name);
 //printf("%s- %s\n",head->parent->name,head->sibling);
 return;
 }
@@ -479,7 +492,7 @@ while(head->sibling!=NULL){
 	head=head->sibling;
 }
 	if(!strcmp(head->name,li->name)&&head->type=='F')x++;
-if(x>0)printf("File  : %s\nStatus: Failed\nError : File with that name already exists\n",li->name);
+if(x>0)printf(RED"File  : %s\nStatus: Failed\nError : File with that name already exists\n"RESET,li->name);
 else{
 		NODE *new=(NODE *) malloc(sizeof(NODE));
 		new->type='F';
@@ -489,7 +502,7 @@ new->sibling=NULL;
 new->parent=head->parent;
 head->sibling=new;
 head=head->sibling;
-printf("File  : %s\nStatus: Successfully created!\n",li->name);
+printf(GREEN"File  : %s\nStatus: Successfully created!\n"RESET,li->name);
 //printf("%s %s\n",head->parent->name,head->sibling);
 
 
@@ -506,7 +519,7 @@ printf("File  : %s\nStatus: Successfully created!\n",li->name);
 
 
 void rm(char *path){
-if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Please enter a valid path/n");
+if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf(RED"Please enter a valid path\n"RESET);
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 NODE *prev=(NODE *) malloc(sizeof(NODE));
@@ -543,13 +556,13 @@ prev=head;
 continue;
 }
 else{
-printf("Error: File not found\n");break;
+printf(RED"Error: File not found\n"RESET);break;
 }
 }
 if(count==length-1){
 head=head->child;
 if(length==1)prev=head;
-if(head==NULL)printf("Error: File-%s not found\n",li->name);
+if(head==NULL)printf(RED"Error: File-%s not found\n"RESET,li->name);
 else{
 	par=head->parent;
 	while(head->name!=NULL){	
@@ -561,16 +574,16 @@ else {par->child=prev;prev->sibling=head->sibling;}
 }
 else if(!strcmp(prev->name,head->name))par->child=NULL;
 else prev->sibling=head->sibling;
- printf("File  : %s\nStatus: Successfully Deleted\n");return;
+ printf(GREEN"File  : %s\nStatus: Successfully Deleted\n"RESET);return;
 }	head=head->sibling;
 
-	}printf("Error: File-%s not found\n",li->name);
+	}printf(RED"Error: File-%s not found\n"RESET,li->name);
 
 	}
 }
 
 else{
-printf("Error: File not found\n");
+printf(RED"Error: File not found\n"RESET);
 }
 }
 }
@@ -616,16 +629,16 @@ head=head->parent;
 
 }
 fprintf(f,"%c      /",temp->type);
-printf("%c      /",temp->type);
+printf(YELLOW"%c   |"BLUE"/"RESET,temp->type);
 while(cur->next!=NULL){
 if(strcmp(cur->name,"/")){
 fprintf(f,"%s",cur->name);
-printf("%s",cur->name);
+printf(BLUE"%s"RESET,cur->name);
 }
 cur=cur->next;
 if(cur->next!=NULL){
 fprintf(f,"/");
-printf("/");
+printf(BLUE"/"RESET);
 }
 }
 fprintf(f,"\n");
@@ -643,10 +656,11 @@ pre_order(head->sibling,f);
 
 void save(){
 FILE *f=fopen("FileTree","w+");
+printf(YELLOW"TYPE|"BLUE"NAME\n"RESET);
 
 	pre_order(root,f);
 	if (f!=NULL)fclose(f);
-printf("This file structure has been saved in the following file: FileTree\n");
+printf(MAGENTA"This file structure has been saved in the following file: FileTree\n"RESET);
 
 	}
 
@@ -655,7 +669,7 @@ printf("This file structure has been saved in the following file: FileTree\n");
 
 
 void menu(){
-printf("mkdir pathname :make a new directory for a given pathname\n"); 
+printf(MAGENTA"mkdir pathname :make a new directory for a given pathname\n"); 
 printf("rmdir pathname :remove the directory, if it is empty.\n"); 
 printf("cd [pathname] :change CWD to pathname, or to / if no pathname.\n"); 
 printf("ls [pathname] :list the directory contents of pathname or CWD\n"); 
@@ -665,7 +679,7 @@ printf("rm pathname :remove the FILE node. \n");
 printf("save ﬁlename :save the current ﬁle system tree as a ﬁle\n");
 printf("reload ﬁlename :construct a ﬁle system tree from a ﬁle\n");
 printf("menu : show a menu of valid commands \n");
-printf("quit : save the ﬁle system tree, then terminate the program.\n");
+printf("quit : save the ﬁle system tree, then terminate the program.\n"RESET);
 }
 
 
@@ -684,11 +698,12 @@ exit(0);
 int main(){
 int index;
 initialise();
-printf("Welcome to Shuxton's File Tree\nType 'menu' for a list of available commands\n");
+
+printf(MAGENTA"Welcome to Shuxton's File Tree\nType 'menu' for a list of available commands\n"RESET);
 
 while(1){
 strcpy(pathname,"\0");
-printf("filetree~");
+printf(CYAN"filetree~"RESET);
 fgets(line,128,stdin);
 line[strlen(line)-1]=0;
 sscanf(line,"%s %s",command,pathname);
