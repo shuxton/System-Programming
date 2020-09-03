@@ -671,15 +671,15 @@ printf(MAGENTA"This file structure has been saved in the following file: FileTre
 void menu(){
 printf(MAGENTA"mkdir pathname :make a new directory for a given pathname\n"); 
 printf("rmdir pathname :remove the directory, if it is empty.\n"); 
-printf("cd [pathname] :change CWD to pathname, or to / if no pathname.\n"); 
-printf("ls [pathname] :list the directory contents of pathname or CWD\n"); 
-printf("pwd :print the (absolute) pathname of CWD\n"); 
+printf("cd [pathname]  :change CWD to pathname, or to / if no pathname.\n"); 
+printf("ls [pathname]  :list the directory contents of pathname or CWD\n"); 
+printf("pwd            :print the (absolute) pathname of CWD\n"); 
 printf("creat pathname :create a FILE node. \n");
-printf("rm pathname :remove the FILE node. \n");
-printf("save ﬁlename :save the current ﬁle system tree as a ﬁle\n");
+printf("rm pathname    :remove the FILE node. \n");
+printf("save ﬁlename   :save the current ﬁle system tree as a ﬁle\n");
 printf("reload ﬁlename :construct a ﬁle system tree from a ﬁle\n");
-printf("menu : show a menu of valid commands \n");
-printf("quit : save the ﬁle system tree, then terminate the program.\n"RESET);
+printf("menu           : show a menu of valid commands \n");
+printf("quit           : save the ﬁle system tree, then terminate the program.\n"RESET);
 }
 
 
