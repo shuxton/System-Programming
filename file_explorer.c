@@ -5,16 +5,16 @@
 char *cmd[]={"mkdir","rmdir","ls","cd","pwd","creat","rm",
              "reload","save","menu","quit",NULL};
 
+
+char line [128];
+char command[16],pathname[64];
+
 typedef struct node{
 char name[64];
 char type;
 struct node *child,*sibling,*parent;
 }NODE;
 
-typedef struct stack{
-char name[64];
-struct stack *down;
-}STACK;
 
 typedef struct list{
 char name[64];
@@ -23,6 +23,10 @@ struct list *next;
 
 NODE *root, *cwd;
 LIST *advpath;
+
+
+//----------------------------------------------------------
+
 
 void path_resolve(char *path){
 	advpath=(LIST *)malloc(sizeof(LIST));
@@ -51,6 +55,10 @@ head->next=NULL;
 }
 }
 
+
+//----------------------------------------------------------
+
+
 int path_length(){
 	int i=0;
 			LIST *head=(LIST *)malloc(sizeof(LIST));
@@ -63,9 +71,8 @@ head=advpath;
 	return i;
 }
 
-char line [128];
-char command[16],pathname[64];
-char dname[64],bname[64];
+//----------------------------------------------------------
+
 
 int findCmd(char *command){
 int i=0;
@@ -76,6 +83,8 @@ i++;
 }
 return -1;
 }
+
+
 //----------------------------------------------------------
 
 void initialise(){
@@ -87,54 +96,39 @@ root->sibling=root;
 root->parent=root;
 cwd=root;
 }
+
+
 //----------------------------------------------------------
-
-
-
 
 
 
 void mkdir(char *path){
 
-if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Invalid path/n");
+if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Please enter a valid directory name/n");
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 
-char *token=strtok(path,"/");
-char temp[50];
-if(token!=NULL)strcpy(temp,token);
+LIST *li=(LIST *) malloc(sizeof(LIST));
+
+int flag=0,count=0;
+path_resolve(path);
+int length=path_length();
+
+int x=0;
 if(path[0]=='/')
 head=root;
 else head=cwd;
-while(token!=NULL){
+li=advpath;
 
-if((!strcmp(token,head->name) || head->sibling==NULL ||  !strcmp(head->name,head->sibling->name)) && head->type=='D'){
-token=strtok(NULL,"/");
-if(token!=NULL)strcpy(temp,token);
-
-
-if(token==NULL){
-NODE *new=(NODE *) malloc(sizeof(NODE));
-strcpy(new->name,temp);
-new->type='D';
-new->child=0;
-//printf("%s %s\n",head->child->name,head->parent->name);
-
-if(head->child==NULL)
-new->sibling=0;
-else new->sibling=head->child;
-new->parent=head;
-head->child=new;
-head=head->child;
-//printf("%s %s\n",head->sibling->name,head->parent->name);
- printf("Success\n");break;
-}
-else if(!strcmp(head->name,head->sibling->name) && head->child==NULL){
-printf("Invalid\n");break;
-}else if(!strcmp(head->name,head->sibling->name))head=head->child;
+while(count<length-1){
+//printf("yu");
+if(!strcmp(head->name,li->name) && head->type=='D' ){
+count++;
+li=li->next;
 continue;
+
 }
-else if(head->sibling!=NULL){
+else if(head->sibling!=NULL && strcmp(head->name,head->sibling->name)){
 head=head->sibling;
 continue;
 }
@@ -142,20 +136,52 @@ else if(head->child!=NULL){
 head=head->child;
 continue;
 }
-
-else {
+else{
 printf("Invalid path\n");break;
-} 
+}
+}
+if(count==length-1){
+if(head->child==NULL){
+	NODE *new=(NODE *) malloc(sizeof(NODE));
+	new->type='D';
+
+strcpy(new->name,li->name);
+new->child=NULL;
+new->sibling=NULL;
+new->parent=head;
+head->child=new;
+printf("Directory  : %s\nStatus: Successfully created!\n",li->name);
+return;
+}
+head=head->child;
+while(head->sibling!=NULL){
+	if(!strcmp(head->name,li->name)&&head->type=='D')x++;
+	head=head->sibling;
+}
+	if(!strcmp(head->name,li->name)&&head->type=='D')x++;
+if(x>0)printf("Directory  : %s\nStatus: Failed\nError : Directory with that name already exists\n",li->name);
+else{
+		NODE *new=(NODE *) malloc(sizeof(NODE));
+		new->type='D';
+strcpy(new->name,li->name);
+new->child=NULL;
+new->sibling=NULL;
+new->parent=head->parent;
+head->sibling=new;
+printf("Directory  : %s\nStatus: Successfully created!\n",li->name);
+
+}
+
 }
 }
 }
+
 
 //----------------------------------------------------------
 
 
-
 void rmdir(char *path){
-if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Invalid path/n");
+if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Please enter a valid path/n");
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 NODE *prev=(NODE *) malloc(sizeof(NODE));
@@ -192,13 +218,14 @@ prev=head;
 continue;
 }
 else{
-printf("Invalid path\n");break;
+	printf("Error: Directory is not empty or it doesn't exist\n");break;
+
 }
 }
 if(count==length-1){
 head=head->child;
 if(length==1)prev=head;
-if(head==NULL)printf("Invalid path\n");
+if(head==NULL)printf("Error: Directory-%s is not empty or it doesn't exist\n",li->name);
 else{
 	par=head->parent;
 	while(head->name!=NULL){	
@@ -209,21 +236,25 @@ else {par->child=prev;prev->sibling=head->sibling;}
 }
 else if(!strcmp(prev->name,head->name))par->child=NULL;
 else prev->sibling=head->sibling;
- printf("Success\n");return;
+ printf("Directory  : %s\nStatus: Successfully Deleted\n");return;
 }	head=head->sibling;
 
-	}printf("Invalid path\n");
+	}printf("Error: Directory-%s is not empty or it doesn't exist\n",li->name);
+	
 
 	}
 }
 
 else{
-printf("Invalid path\n");
+	printf("Error: Directory is not empty or it doesn't exist\n");
 }
 }
 }
 
+
 //--------------------------------------------
+
+
 void ls(char *path){
 	//printf("%d",strlen(path));
 NODE *head=(NODE *) malloc(sizeof(NODE));
@@ -307,7 +338,7 @@ printf("Invalid path\n");break;
 void cd(char *path){
 if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/')){
 cwd=root;
-printf("/\n");
+printf("You are now in root directory\n");
 }
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
@@ -359,74 +390,63 @@ printf("Invalid path\n");break;
 }
 
 
+//----------------------------------------------------------
 
 
 void pwd(){
 NODE *head=(NODE *)malloc(sizeof(NODE));
 head=cwd;
-STACK *cur=(STACK *)malloc(sizeof(STACK));
-cur->down=NULL;
+LIST *cur=(LIST *)malloc(sizeof(LIST));
+cur->next=NULL;
 strcpy(cur->name,head->name);
 while(strcmp(head->parent->name,head->name)){
 head=head->parent;
-STACK *new=(STACK *)malloc(sizeof(STACK));
-new->down=cur;
+LIST *new=(LIST *)malloc(sizeof(LIST));
+new->next=cur;
 strcpy(new->name,head->name);
 cur=new;
 }
-while(cur->down!=NULL){
+while(cur->next!=NULL){
 
 printf("%s",cur->name);
 if(strcmp(cur->name,"/"))
 printf("/");
-cur=cur->down;
+cur=cur->next;
 }
 
 printf("%s\n",cur->name);
 }
 
 
-void creat(char *path){
+//----------------------------------------------------------
 
-if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Invalid path/n");
+
+void creat(char *path){
+if(path[0]=='\0' || (path[1]=='\0' && path[0]=='/'))printf("Please enter a valid file name\n");
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 
-char *token=strtok(path,"/");
-char temp[50];
-if(token!=NULL)strcpy(temp,token);
+LIST *li=(LIST *) malloc(sizeof(LIST));
+
+int flag=0,count=0;
+path_resolve(path);
+int length=path_length();
+
+int x=0;
 if(path[0]=='/')
 head=root;
 else head=cwd;
-while(token!=NULL){
+li=advpath;
 
-if((!strcmp(token,head->name) || head->sibling==NULL ||  !strcmp(head->name,head->sibling->name)) && head->type=='D'){
-token=strtok(NULL,"/");
-if(token!=NULL)strcpy(temp,token);
-
-
-if(token==NULL){
-NODE *new=(NODE *) malloc(sizeof(NODE));
-strcpy(new->name,temp);
-new->type='F';
-new->child=0;
-//printf("%s %s\n",head->child->name,head->parent->name);
-
-if(head->child==NULL)
-new->sibling=0;
-else new->sibling=head->child;
-new->parent=head;
-head->child=new;
-head=head->child;
-//printf("%s %s\n",head->sibling->name,head->parent->name);
- printf("Success\n");break;
-}
-else if(!strcmp(head->name,head->sibling->name) && head->child==NULL){
-printf("Invalid\n");break;
-}else if(!strcmp(head->name,head->sibling->name))head=head->child;
+while(count<length-1){
+//printf("yu");
+if(!strcmp(head->name,li->name) && head->type=='D' ){
+count++;
+li=li->next;
 continue;
+
 }
-else if(head->sibling!=NULL){
+else if(head->sibling!=NULL && strcmp(head->name,head->sibling->name)){
 head=head->sibling;
 continue;
 }
@@ -434,17 +454,59 @@ else if(head->child!=NULL){
 head=head->child;
 continue;
 }
-
-else {
+else{
 printf("Invalid path\n");break;
-} 
 }
 }
+if(count==length-1){
+if(head->child==NULL){
+	NODE *new=(NODE *) malloc(sizeof(NODE));
+	new->type='F';
+
+strcpy(new->name,li->name);
+new->child=NULL;
+new->sibling=NULL;
+new->parent=head;
+head->child=new;
+head=head->child;
+printf("File  : %s\nStatus: Successfully created!\n",li->name);
+//printf("%s- %s\n",head->parent->name,head->sibling);
+return;
 }
+head=head->child;
+while(head->sibling!=NULL){
+	if(!strcmp(head->name,li->name)&&head->type=='F')x++;
+	head=head->sibling;
+}
+	if(!strcmp(head->name,li->name)&&head->type=='F')x++;
+if(x>0)printf("File  : %s\nStatus: Failed\nError : File with that name already exists\n",li->name);
+else{
+		NODE *new=(NODE *) malloc(sizeof(NODE));
+		new->type='F';
+strcpy(new->name,li->name);
+new->child=NULL;
+new->sibling=NULL;
+new->parent=head->parent;
+head->sibling=new;
+head=head->sibling;
+printf("File  : %s\nStatus: Successfully created!\n",li->name);
+//printf("%s %s\n",head->parent->name,head->sibling);
+
+
+}
+
+}
+}
+
+
+}
+
+
+//----------------------------------------------------------
 
 
 void rm(char *path){
-if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Invalid path/n");
+if(path[0]=='\0' ||(path[1]=='\0' && path[0]=='/'))printf("Please enter a valid path/n");
 else{
 NODE *head=(NODE *) malloc(sizeof(NODE));
 NODE *prev=(NODE *) malloc(sizeof(NODE));
@@ -481,13 +543,13 @@ prev=head;
 continue;
 }
 else{
-printf("Invalid path\n");break;
+printf("Error: File not found\n");break;
 }
 }
 if(count==length-1){
 head=head->child;
 if(length==1)prev=head;
-if(head==NULL)printf("Invalid path\n");
+if(head==NULL)printf("Error: File-%s not found\n",li->name);
 else{
 	par=head->parent;
 	while(head->name!=NULL){	
@@ -499,19 +561,21 @@ else {par->child=prev;prev->sibling=head->sibling;}
 }
 else if(!strcmp(prev->name,head->name))par->child=NULL;
 else prev->sibling=head->sibling;
- printf("Success\n");return;
+ printf("File  : %s\nStatus: Successfully Deleted\n");return;
 }	head=head->sibling;
 
-	}printf("Invalid path\n");
+	}printf("Error: File-%s not found\n",li->name);
 
 	}
 }
 
 else{
-printf("Invalid path\n");
+printf("Error: File not found\n");
 }
 }
 }
+
+//----------------------------------------------------------
 
 
 void reload(){
@@ -524,6 +588,10 @@ void reload(){
 	}
 	if(f!=NULL)fclose(f);
 	}
+
+
+//----------------------------------------------------------
+
 
 void pre_order(NODE *head,FILE *f){
 	if (head==NULL)return;
@@ -548,15 +616,20 @@ head=head->parent;
 
 }
 fprintf(f,"%c      /",temp->type);
+printf("%c      /",temp->type);
 while(cur->next!=NULL){
-if(strcmp(cur->name,"/"))
+if(strcmp(cur->name,"/")){
 fprintf(f,"%s",cur->name);
+printf("%s",cur->name);
+}
 cur=cur->next;
-if(cur->next!=NULL)
+if(cur->next!=NULL){
 fprintf(f,"/");
+printf("/");
+}
 }
 fprintf(f,"\n");
-
+printf("\n");
 head=temp;
 pre_order(head->child,f);
 if(head!=head->sibling)
@@ -565,13 +638,22 @@ pre_order(head->sibling,f);
 }
 
 
+//----------------------------------------------------------
+
+
 void save(){
 FILE *f=fopen("FileTree","w+");
 
 	pre_order(root,f);
-	fclose(f);
+	if (f!=NULL)fclose(f);
+printf("This file structure has been saved in the following file: FileTree\n");
 
 	}
+
+
+//----------------------------------------------------------
+
+
 void menu(){
 printf("mkdir pathname :make a new directory for a given pathname\n"); 
 printf("rmdir pathname :remove the directory, if it is empty.\n"); 
@@ -587,19 +669,26 @@ printf("quit : save the ﬁle system tree, then terminate the program.\n");
 }
 
 
+//----------------------------------------------------------
+
+
 void quit(){
 save();
 exit(0);
 }
 
 
+//----------------------------------------------------------
+
 
 int main(){
 int index;
 initialise();
+printf("Welcome to Shuxton's File Tree\nType 'menu' for a list of available commands\n");
+
 while(1){
 strcpy(pathname,"\0");
-printf("input a command: ");
+printf("filetree~");
 fgets(line,128,stdin);
 line[strlen(line)-1]=0;
 sscanf(line,"%s %s",command,pathname);
@@ -622,3 +711,4 @@ default:printf("Invalid command %s\n",command);
 }
 return 0;
 }
+//-----------------------END-----------------------------------
